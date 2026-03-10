@@ -23,13 +23,13 @@ UPDATE_INTERVAL = 500  # Milisegundos entre actualizaciones
 
 # Definición del árbol binario (estructura: nodo_id -> (hijo_izquierdo, hijo_derecho))
 ARBOL = {
-    1: (2, 3), # Nodo raiz
-    2: (4, 5), # Nodo raiz subárbol izquierdo
-    3: (6, 7), # Nodo raiz subárbol derecho
-    4: (None, None), # Nodo izquierdo subárbol izquierdo
-    5: (None, None), # Nodo derecho subárbol izquierdo
-    6: (None, None), # Nodo izquierdo subárbol derecho
-    7: (None, None), # Nodo derecho subárbol derecho
+    1: (2, 3),  # Nodo raiz
+    2: (4, 5),  # Nodo raiz subárbol izquierdo
+    3: (6, 7),  # Nodo raiz subárbol derecho
+    4: (None, None),  # Nodo izquierdo subárbol izquierdo
+    5: (None, None),  # Nodo derecho subárbol izquierdo
+    6: (None, None),  # Nodo izquierdo subárbol derecho
+    7: (None, None),  # Nodo derecho subárbol derecho
 }
 
 OBJETIVO = 7  # Nodo objetivo por defecto (Biblioteca)
@@ -41,8 +41,10 @@ NIVEL = {
     4: 2, 5: 2, 6: 2, 7: 2
 }
 
+
 def heuristica(nodo):
     return abs(NIVEL[nodo] - NIVEL[OBJETIVO])
+
 
 def a_star_path(inicio, objetivo):
     frontera = []
@@ -58,8 +60,9 @@ def a_star_path(inicio, objetivo):
         hijos = ARBOL.get(actual, (None, None))
         for hijo in hijos:
             if hijo is not None and hijo not in visitados:
-                heapq.heappush(frontera, (g+1+heuristica(hijo), g+1, hijo, camino+[hijo]))
+                heapq.heappush(frontera, (g + 1 + heuristica(hijo), g + 1, hijo, camino + [hijo]))
     return []
+
 
 def iniciar_ejecucion(current_time):
     global is_running, current_index, last_update_time, recorrido_path
