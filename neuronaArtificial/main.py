@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import matplotlib
+import matplotlib.pyplot as plt
 import random
 
 class Neurona:
@@ -67,6 +67,58 @@ class Neurona:
             # Retornar historial de errores
             return historial_errores
 
+    def graficar_resultados(self, X, y, historial_errores):
+        """
+        Genera y guarda una figura con la frontera de decisión y la curva de aprendizaje.
+        """
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+        fig.suptitle('Resultados del Entrenamiento del Perceptrón', fontsize=16)
+
+        # --- Subgráfica 1: Frontera de decisión ---
+        X_riesgo = X[y == 1]
+        X_sin_riesgo = X[y == 0]
+
+        # Graficar los puntos
+        ax1.scatter(X_riesgo[:, 0], X_riesgo[:, 1], color='red', label='Riesgo (1)', marker='o')
+        ax1.scatter(X_sin_riesgo[:, 0], X_sin_riesgo[:, 1], color='green', label='Sin riesgo (0)', marker='x')
+
+        # Calcular la línea de frontera: w0*x1 + w1*x2 + bias = 0
+        w_asistencia = self.pesos[0]
+        w_promedio = self.pesos[1]
+
+        # Tomar el valor mínimo y máximo de la asistencia para trazar la línea de orilla a orilla
+        x_min, x_max = X[:, 0].min(), X[:, 0].max()
+        x_frontera = np.array([x_min, x_max])
+
+        if w_promedio != 0:
+            y_frontera = -(w_asistencia * x_frontera + self.bias) / w_promedio
+            ax1.plot(x_frontera, y_frontera, color='blue', linestyle='--', label='Frontera de decisión')
+
+        # Configurar Subgráfica 1
+        ax1.set_xlabel('Asistencia', fontsize=12)
+        ax1.set_ylabel('Promedio', fontsize=12)
+        ax1.set_title('Subgráfica 1 - Frontera de Decisión', fontsize=14)
+        ax1.legend(loc='best')
+
+        # --- Subgráfica 2: Curva de aprendizaje ---
+        epocas = range(1, len(historial_errores) + 1)
+        ax2.plot(epocas, historial_errores, color='purple', linestyle='-', marker='o')
+
+        # Configurar Subgráfica 2
+        ax2.set_xlabel('Época', fontsize=12)
+        ax2.set_ylabel('Error Total (Clasificaciones incorrectas)', fontsize=12)
+        ax2.set_title('Subgráfica 2 - Curva de Aprendizaje', fontsize=14)
+        ax2.grid(True, linestyle='--', alpha=0.7)
+
+        # --- Guardar la figura ---
+        plt.tight_layout() # Ajusta los espacios para que no se empalme el texto
+        nombre_archivo = 'visualizacion_entrenamiento.png'
+        plt.savefig(nombre_archivo, dpi=300)
+        print(f"¡Gráfica generada y guardada exitosamente como '{nombre_archivo}'!")
+
+        # plt.show()
+
+
 if __name__ == "__main__":
     df = pd.read_csv("./dataset.csv")
     
@@ -83,6 +135,8 @@ if __name__ == "__main__":
     
     print("\nPesos finales aprendidos:", neurona.pesos)
     print("Bias final aprendido:", neurona.bias)
+
+    neurona.graficar_resultados(X, y, errores)
 
     nuevo_alumno = np.array([0.85, 0.90])
     prediccion_nuevo = neurona.predecir(nuevo_alumno)
