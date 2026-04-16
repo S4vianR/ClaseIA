@@ -22,7 +22,7 @@ class Neurona:
         self.n_entradas = n_entradas
         self.tasa_aprendizaje = tasa_aprendizaje
         self.bias  = 0
-        self.w = np.random.rand(n_entradas)
+        self.pesos = np.random.rand(n_entradas)
 
     def activacion(self, suma):
         # Función escalón de Heaviside:
@@ -33,23 +33,39 @@ class Neurona:
             return 0
 
     def predecir(self, entradas):
-        for x in range(entradas):
-            x+=1
-            print(x)
         # Calcular: suma = Σ(w * x ) + biasᵢ ᵢ
         # Retornar activacion(suma)
+        suma = np.dot(entradas, self.pesos) + self.bias
+        return self.activacion(suma)
 
     def entrenar(self, X, y, epocas=100):
-        # Para cada época:
-        # Para cada ejemplo (xi, yi):
-        #   - prediccion = predecir(xi)
-        #   - error = yi - prediccion
-        #   - w ← w + tasa * error * xi
-        #   - bias ← bias + tasa * error
-        # Guardar el error total por época
-        # Retornar historial de errores
-        pass
+        historial_errores = []
 
+        for epoca in range(epocas):
+            errores_epoca = 0
+            for xi,yi in zip(X,y):
+                # Para cada época:
+                # Para cada ejemplo (xi, yi):
+                #   - prediccion = predecir(xi)
+                prediccion = self.predecir(xi)
+                #   - error = yi - prediccion
+                error = yi - prediccion
+
+                #   - w ← w + tasa * error * xi
+                #   - bias ← bias + tasa * error
+                if error != 0:
+                    self.pesos += self.tasa_aprendizaje * error * xi
+                    self.bias += self.tasa_aprendizaje * error
+                    
+                    errores_epoca += 1
+            # Guardar el error total por época
+            historial_errores.append(errores_epoca)
+
+            if errores_epoca == 0:
+                    print(f"¡Éxito! La neurona aprendió el patrón en la época {epoca + 1}")
+                    break
+            # Retornar historial de errores
+            return historial_errores
 
 if __name__ == "__main__":
     df = pd.read_csv("./dataset.csv")
@@ -58,5 +74,18 @@ if __name__ == "__main__":
     y = df["clase"].values
     
     neurona = Neurona(2)
-    # neurona.entrenar(X,y)
-    neurona.predecir(neurona.n_entradas)
+
+    print("Iniciando entrenamiento...")
+    errores = neurona.entrenar(X, y)
+    
+    print("\nHistorial de errores por época:")
+    print(errores)
+    
+    print("\nPesos finales aprendidos:", neurona.pesos)
+    print("Bias final aprendido:", neurona.bias)
+
+    nuevo_alumno = np.array([0.85, 0.90])
+    prediccion_nuevo = neurona.predecir(nuevo_alumno)
+    
+    resultado = "Aprobado" if prediccion_nuevo == 1 else "Reprobado"
+    print(f"\nPredicción para el nuevo alumno {nuevo_alumno}: {resultado}")
